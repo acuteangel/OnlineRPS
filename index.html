@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Kawaii RPS Online</title>
+    <link href="https://fonts.googleapis.com/css?family=Butterfly+Kids" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/reset.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+</head>
+<body>
+    <div id="loading">
+        <h1>Loading...</h1>
+    </div>
+    <div id="wrapper" hidden>
+        <h1 class="player-select">Select player</h1>
+        <img id="pink-select" class="player-select" src="assets/images/pink-selected.webp" data-selected = "no" data-color = "pink">
+        <img id="brown-select" class="player-select" src="assets/images/brown-selected.png" data-selected = "no" data-color = "brown">
+        <div class="grid-container">
+            <div class="info-container gameplay" hidden></div>
+            <div class="rps-container gameplay" hidden>
+                <img class="kawaii-img gameplay" hidden src="assets/images/kawaii-paper.jpg">
+                <img class="kawaii-img gameplay" hidden src="assets/images/kawaii-scissors.jpg">
+                <img class="kawaii-img gameplay" hidden src="assets/images/kawaii-rock.jpg">
+            </div>
+            <div class="chat-container gameplay" hidden>
+                <div id="chat-history"></div>
+                <form autocomplete="false">
+                    <input type="text" id="text-message" autocomplete="false"><input type="submit" value="Chat" id="chat-button">
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.5.3/firebase.js"></script>
+    <script src="./assets/javascript/game.js"></script>
+</body>
+</html>
