@@ -133,7 +133,7 @@ form{
     border: .1vw solid pink;
     padding: 0px;
     position: absolute;
-    bottom: 5.45vw;
+    top: 40vw;
     right: 15vw;
 }
 
@@ -145,7 +145,7 @@ form{
     width: 5vw;
     background-color: pink;
     position: absolute;
-    bottom: 5.45vw;
+    top: 40vw;
     right: 10vw;
 }
 
