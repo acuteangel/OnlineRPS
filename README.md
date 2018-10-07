@@ -1,5 +1,7 @@
 # OnlineRPS
 
+https://acuteangel.github.io/OnlineRPS/
+
 psuedocode: 
 
 Scene 1: setup page

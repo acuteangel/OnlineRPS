@@ -11,21 +11,28 @@
     
 </head>
 <body>
-    <div id="loading">
+    <div id="loading" >
         <h1>Loading...</h1>
     </div>
-    <div id="wrapper" hidden>
-        <h1 class="player-select">Select player</h1>
-        <img id="pink-select" class="player-select" src="assets/images/pink-selected.webp" data-selected = "no" data-color = "pink">
-        <img id="brown-select" class="player-select" src="assets/images/brown-selected.png" data-selected = "no" data-color = "brown">
+    <div id="wrapper">
+        <h1  hidden class="player-select">Select player</h1>
+        <img hidden  id="pink-select" class="player-select" src="assets/images/pink-selected.webp" data-selected = "no" data-color = "pink">
+        <img hidden  id="brown-select" class="player-select" src="assets/images/brown-selected.png" data-selected = "no" data-color = "brown">
         <div class="grid-container">
             <div class="info-container gameplay" hidden>
-                <h3>Starting round...</h3>
+                <h6 id="info-display" >Starting round...</h6>
+                <p id="timer-display"></p>
+                <img class="versus" id="same-choice" src="" data-rock="assets/images/rock-selected.jpg" data-paper="assets/images/paper-selected.jpg" data-scissors="assets/images/scissors-selected.jpg" >
+                <p class="versus" id="vs">vs</p>
+                <img class="versus" id="different-choice" src="" data-rock="assets/images/rock-selected.jpg" data-paper="assets/images/paper-selected.jpg" data-scissors="assets/images/scissors-selected.jpg" >
+                <img id="pink-result" class="results" src="" data-win="assets/images/pink-win.webp" data-defeated="assets/images/pink-defeated.png" hidden>
+                <img id="brown-result" class="results" src="" data-win="assets/images/brown-win.webp" data-defeated="assets/images/brown-defeated.png" hidden>
+                <p class="results" id="WTL" hidden>Win-Tie-Loss</p><p class="results" id="score" hidden></p>
             </div>
             <div class="rps-container gameplay" hidden>
-                <img class="kawaii-img gameplay" hidden src="assets/images/kawaii-paper.jpg">
-                <img class="kawaii-img gameplay" hidden src="assets/images/kawaii-scissors.jpg">
-                <img class="kawaii-img gameplay" hidden src="assets/images/kawaii-rock.jpg">
+                <img class="kawaii-img gameplay"  src="assets/images/kawaii-paper.jpg" data-type="paper">
+                <img class="kawaii-img gameplay"  src="assets/images/kawaii-scissors.jpg" data-type="scissors">
+                <img class="kawaii-img gameplay"  src="assets/images/kawaii-rock.jpg" data-type="rock">
             </div>
             <div class="chat-container gameplay" hidden>
                 <div id="chat-history"></div>

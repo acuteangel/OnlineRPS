@@ -74,13 +74,31 @@ body {
 }
 
 .info-container{
-    height: 20vw;
+    height: 21vw;
     width: 40vw;
     grid-area: info;
 }
 
+#pink-result, #brown-result {
+    height: 10vw;
+}
+
+
+#vs{
+    display: none;
+    vertical-align: super;
+}
+
+#info-display{
+    text-transform: capitalize;
+}
+
+#different-choice{
+    display: none;
+}
+
 .rps-container{
-    height: 20vw;
+    height: 19vw;
     width: 40vw;
     background-color: rgb(238,239,240);
     grid-area: rps;
@@ -92,16 +110,20 @@ body {
     grid-area: chat;
 }
 
+h6{    
+    font-family: 'Butterfly Kids', cursive;
+    font-size: 3vw;
+}
+
 .kawaii-img {
     margin: 0px;
     float: left;
-    height: 19vw;
-    width: auto;
-    
+    height: 18vw;
+    width: auto;    
 }
 
 .kawaii-img:hover {
-    height:20vw;
+    height:19vw;
 }
 #chat-history{
     height: 35vw;    
