@@ -97,6 +97,10 @@ body {
     display: none;
 }
 
+#WTL {
+    margin-top: -2vw;
+}
+
 .rps-container{
     height: 19vw;
     width: 40vw;
@@ -115,7 +119,7 @@ h6{
     font-size: 3vw;
 }
 
-.kawaii-img {
+.kawaii-img, .kawaii-img:hover:active {
     margin: 0px;
     float: left;
     height: 18vw;
@@ -125,6 +129,8 @@ h6{
 .kawaii-img:hover {
     height:19vw;
 }
+
+
 #chat-history{
     height: 35vw;    
     margin: 0px;
@@ -149,11 +155,11 @@ form{
     padding: 0px;
 }
 #text-message{
-    width: 34.8vw;
+    width: 32.8vw;
     height: 4.8vw;
     margin: 0px;
     border: .1vw solid pink;
-    padding: 0px;
+    padding: 0vw 1vw;
     position: absolute;
     top: 40vw;
     right: 15vw;

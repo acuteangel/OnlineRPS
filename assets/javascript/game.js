@@ -15,21 +15,22 @@ $(document).ready(function() {
     var rpsArray = ["rock", "paper", "scissors"];
     var rpsPink;
     var rpsBrown;
-    sessionStorage.playerSelected = "spectator";
-    sessionStorage.wins = 0;
-    sessionStorage.ties = 0;
-    sessionStorage.losses = 0;
+    var playerSelected = "spectator";
+    var wins = 0;
+    var ties = 0;
+    var losses = 0;
     var roundEnder = 0;
+    var playAgain = "neither";
+    var squeakSound;
 
+    //resets all others back to the player selection screen if a player leaves
     $(window).on('beforeunload unload', function(){                
-        if (sessionStorage.playerSelected == "pink" || sessionStorage.playerSelected == "brown"){
+        if (playerSelected != "spectator"){
             database.ref().set({
-                pinkSelected: false,
-                brownSelected: false,
-                gameInProgress: false,
-                playerLeave: sessionStorage.playerSelected,
-                rpsPink: "none",
-                rpsBrown: "none",
+                brown: {selected: false},
+                pink: {selected: false},
+                gameInProgress: true,
+                playerLeave: playerSelected,
                 roundEnd: false
             })
         }
@@ -40,48 +41,65 @@ $(document).ready(function() {
         $("#wrapper").show();
         console.log(snapshot.val())
         if (snapshot.val().playerLeave !== "no") {
-            alert(snapshot.val().playerLeave+" has left");
-            database.ref().update({playerLeave: "no", gameInProgress: false})
             deselectPlayer(snapshot.val().playerLeave);
-            sessionStorage.playerSelected = "spectator";
-        }
-        if (snapshot.val().gameInProgress == false) {            
+            playerSelected = "spectator";
             $(".player-select").show();
             $(".gameplay").hide();
-            if (snapshot.val().brownSelected == false){
+            if (snapshot.val().gameInProgress){
+                alert(snapshot.val().playerLeave+" has left");
+            };
+            database.ref().update({playerLeave: "no", gameInProgress: false})
+            
+        }
+        if (!snapshot.val().gameInProgress) {
+            if (!snapshot.val().brown.selected){
                 deselectPlayer("brown")
-            }
-            if (snapshot.val().pinkSelected == false){
+            };
+            if (!snapshot.val().pink.selected){
                 deselectPlayer("pink")
-            }
-            if (snapshot.val().pinkSelected == true) {
+            };
+            if (snapshot.val().pink.selected) {
                 selectPlayer("pink")                
-            }
-            if (snapshot.val().brownSelected == true) {
-                selectPlayer("brown")
-                if (snapshot.val().pinkSelected == true){
+            };
+            if (snapshot.val().brown.selected) {
+                selectPlayer("brown");
+                if (snapshot.val().pink.selected){
                     database.ref().update({
                         gameInProgress: true
-                    })
+                    });
+                    $("#info-display").text("Starting round...");
                     roundStart();
-                }
-            }
-        } else if (snapshot.val().gameInProgress == true){
+                };
+            };
+        } else if (snapshot.val().gameInProgress && snapshot.val().playerLeave == "no"){
             $(".player-select").hide();
             $(".gameplay").show();
-        }
-        if (snapshot.val().roundEnd == true && roundEnder == 0) {
-            roundEnder++;
-            rpsPink = snapshot.val().rpsPink
-            rpsBrown = snapshot.val().rpsBrown
-            console.log("meow")
+        };
+        if (snapshot.val().roundEnd && roundEnder == 0) {
+            rpsPink = snapshot.val().pink.rps;
+            rpsBrown = snapshot.val().brown.rps;
             roundEnd(rpsPink, rpsBrown);
-        } else if (snapshot.val().roundEnd == false && roundEnder == 1) {
+        } else if (!snapshot.val().roundEnd && roundEnder == 1) {
             roundEnder++;
-            $("#score").text("Pink: "+snapshot.val().pinkScore+" Brown: "+snapshot.val().brownScore)
+            $("#score").text("Pink: "+snapshot.val().pink.score+" Brown: "+snapshot.val().brown.score);
             $("#score").fadeIn();
-        }
-    })    
+        };
+        if (snapshot.val().playAgain != "neither") {
+            if (snapshot.val().playAgain == "pink" || snapshot.val().playAgain == "brown") {                
+                playAgain = snapshot.val().playAgain;
+                console.log(playAgain)
+            } else if (snapshot.val().playAgain == "both"){
+                playAgain = "neither";
+                database.ref().update({
+                    playAgain: playAgain,
+                    brown: {selected: true},
+                    pink: {selected: true},
+                });
+                $("#info-display").text("Starting round...");                
+                roundStart();
+            };
+        };
+    });
 
     //player select
     function selectPlayer(player){
@@ -95,89 +113,90 @@ $(document).ready(function() {
     }
 
     $(".player-select").on("click", function(){
-    if ($(this).attr("data-selected") == "no"){        
-        var color = $(this).attr("data-color");
-        selectPlayer(color);
-        if (sessionStorage.playerSelected != "spectator"){
-            deselectPlayer(sessionStorage.playerSelected)
-            if (sessionStorage.playerSelected == "pink"){
-                database.ref().update({
-                pinkSelected: false
-                })
-            } else {
-                database.ref().update({
-                    brownSelected: false
-                })
-            }
-        }        
-        sessionStorage.playerSelected = color;
-        if (color == "pink"){
-            database.ref().update({
-            pinkSelected: true
-            })
-        } else {
-            database.ref().update({
-                brownSelected: true
-            })
-        }
-    }
-    console.log(sessionStorage.playerSelected)
-    })
-
-    //game functionality
-    $(".kawaii-img").on("click", function() {
-        var selection = $(this).attr("data-type")
-        if (sessionStorage.playerSelected != "spectator" && timer > 0) {
-            if (sessionStorage.playerSelected == "pink"){
-                rpsPink = $(this).attr("data-type");
-                database.ref().update({
-                    rpsPink: rpsPink
-                })
-            } else {
-                rpsBrown = $(this).attr("data-type");
-                database.ref().update({
-                    rpsBrown: rpsBrown
-                })
-            }
-            $("#same-choice").attr("src", "assets/images/"+selection+"-selected.jpg");
-        }
+        if ($(this).attr("data-selected") == "no"){
+            var color = $(this).attr("data-color");
+            selectPlayer(color);
+            if (playerSelected != "spectator"){
+                deselectPlayer(playerSelected);                
+                database.ref(playerSelected).update({
+                    selected: false
+                });                
+            };
+            playerSelected = color;
+            database.ref(color).update({
+                selected: true
+            });
+        };
     });
 
+    //allow for choice of rock paper or scissors. rpsPink/rpsBrown are randomized initially to prevent no selection
+    $(".kawaii-img").on("mousedown", function() {
+        $("#squeak-click").get(0).volume = 0.1;
+        $("#squeak-click").get(0).play();
+    });
+    
+    $(".kawaii-img").on("mouseup", function() {
+        $("#squeak-release").get(0).volume = 0.1;
+        $("#squeak-release").get(0).play();
+        var selection = $(this).attr("data-type")
+        if (playerSelected != "spectator" && timer > 0) {
+            if (playerSelected == "pink"){
+                rpsPink = $(this).attr("data-type");
+            } else {
+                rpsBrown = $(this).attr("data-type");                
+            };
+            database.ref(playerSelected).update({
+                rps: $(this).attr("data-type")
+            });
+            $("#same-choice").attr("src", "assets/images/"+selection+"-selected.jpg");
+        };
+    });    
+
+    //function that starts a round and the timer
     function roundStart() {
-        roundEnder = 0
-        timer = 5
+        $(".results").hide();
+        $("#same-choice").attr("src","");
+        $("#same-choice").show();
+        roundEnder = 0;
+        timer = 5;
         rpsPink = rpsArray[Math.floor(Math.random()*3)];
-        rpsBrown = rpsArray[Math.floor(Math.random()*3)];
-        if (sessionStorage.playerSelected != "spectator") {
-            $("#info-display").text("Make your selection!")
+        rpsBrown = rpsPink;
+        database.ref(playerSelected).update({
+            rps: rpsPink
+        });
+        if (playerSelected != "spectator") {
+            $("#info-display").text("Make your selection!");
         } else {
-            $("#info-display").text("Players are selecting!")
-        }
-        $("#timer-display").text("Time: "+timer)
+            $("#info-display").text("Players are selecting!");
+        };
+        $("#timer-display").text("Time: "+timer);
         var timeInterval = setInterval(function(){
             timer--;
             $("#timer-display").text("Time: "+timer);
             if (timer<1){
                 clearInterval(timeInterval);                
-                switch (sessionStorage.playerSelected) {
+                switch (playerSelected) {
                     case "pink": 
-                        database.ref().update({
-                            rpsPink: rpsPink
-                        })
+                        database.ref("pink").update({
+                            rps: rpsPink
+                        });
+                        $("#same-choice").attr("src", "assets/images/"+rpsPink+"-selected.jpg");
                         break;
                     case "brown":
-                        database.ref().update({
-                            rpsBrown: rpsBrown
-                        })
+                        database.ref("brown").update({
+                            rps: rpsBrown
+                        });
+                        $("#same-choice").attr("src", "assets/images/"+rpsBrown+"-selected.jpg");
                         break;
-                }
+                };
                 database.ref().update({
                     roundEnd: true
-                })
-            }            
-        }, 1000)
-    }
+                });
+            };
+        }, 1000);
+    };
 
+    //function to locally determine the result
     function resolveWinner(pinkinput, browninput) {
         var winner;
         switch (pinkinput) {
@@ -190,9 +209,9 @@ $(document).ready(function() {
                         winner= "brown";
                         break;
                     case "scissors":
-                        winner= "pink"
+                        winner= "pink";
                         break;
-                }
+                };
             break;
             case "paper":
                 switch (browninput) {
@@ -203,9 +222,9 @@ $(document).ready(function() {
                         winner= "tie";
                         break;
                     case "scissors":
-                        winner= "brown"
+                        winner= "brown";
                         break;
-                }
+                };
             break;
             case "scissors":
                 switch (browninput) {
@@ -216,18 +235,19 @@ $(document).ready(function() {
                         winner= "pink";
                         break;
                     case "scissors":
-                        winner= "tie"
+                        winner= "tie";
                         break;
-                }
+                };
             break;
-        }
+        };
         return winner;
-    }
+    };
 
+    //function that triggers when time = 0 and a round ends
     function roundEnd(pinkinput, browninput) {
         var winner = resolveWinner(pinkinput, browninput);
         updateScore(winner);
-        switch (sessionStorage.playerSelected) {            
+        switch (playerSelected) {            
             case "pink":
                 $("#different-choice").attr("src", "assets/images/"+browninput+"-selected.jpg");                
                 break;
@@ -237,85 +257,123 @@ $(document).ready(function() {
             case "spectator":
             $("#same-choice").attr("src", "assets/images/"+pinkinput+"-selected.jpg");
             $("#different-choice").attr("src", "assets/images/"+browninput+"-selected.jpg");
-        }
-        $("#vs").fadeIn().css({display: "inline"})
-        $("#different-choice").fadeIn().css({display: "inline"})
+        };
+        $("#timer-display").fadeOut();
+        $("#vs").fadeIn().css({display: "inline"});
+        $("#different-choice").fadeIn().css({display: "inline"});
         setTimeout(function(){    
             if (winner=="tie"){
-                $("#info-display").text("tie!")
+                $("#info-display").text("tie!");
             } else {
-                $("#info-display").text(winner + " wins!")
-            }
-            $("#timer-display").fadeOut()
-        }, 1500)
+                $("#info-display").text(winner + " wins!");
+            }    ;        
+        }, 1500);
         setTimeout(function(){
             if (winner != "brown"){
-                $("#pink-result").attr("src", $("#pink-result").attr("data-win"))
-                if (winner = "pink") {
-                    $("#brown-result").attr("src", $("#brown-result").attr("data-defeated"))    
+                $("#pink-result").attr("src", $("#pink-result").attr("data-win"));
+                if (winner == "pink") {
+                    $("#brown-result").attr("src", $("#brown-result").attr("data-defeated"));  
                 } else {
-                    $("#brown-result").attr("src", $("#brown-result").attr("data-win"))
-                }
+                    $("#brown-result").attr("src", $("#brown-result").attr("data-win"));
+                };
             } else {
-                $("#brown-result").attr("src", $("#brown-result").attr("data-win"))
-                $("#pink-result").attr("src", $("#pink-result").attr("data-defeated"))
-            }
+                $("#brown-result").attr("src", $("#brown-result").attr("data-win"));
+                $("#pink-result").attr("src", $("#pink-result").attr("data-defeated"));
+            };
             $(".versus").hide();
-            $(".results").show();
-            $("#timer-display").text("Click to play again!")
+            $(".results").show();            
+            if (playerSelected != "spectator") {
+                $("#timer-display").text("Click here to play again!");
+            } else {
+                $("#timer-display").text("Waiting for players...");
+            };
+            $("#timer-display").fadeIn("slow");
             database.ref().update({
                 roundEnd: false
-            })
-        }, 3000)                
-    }
+            });
+        }, 3000);    
+    };
 
+    //function to update the local score, then update the global score with matching numbers
     function updateScore(winner){
-        if (sessionStorage.playerSelected == winner){
-            sessionStorage.wins++;
-        } else if (sessionStorage.playerSelected != "spectator"){
+        if (playerSelected == winner){
+            wins++;
+        } else if (playerSelected != "spectator"){
             if (winner == "tie"){
-                sessionStorage.ties++
+                ties++;
             } else {
-                sessionStorage.losses++;
-            }
-        }
-        var newScore = sessionStorage.wins + "-" + sessionStorage.ties + "-" + sessionStorage.losses;
-        if (sessionStorage.playerSelected == "pink") {
-            database.ref().update({
-                pinkScore: newScore
-            })
-        } else if (sessionStorage.playerSelected == "brown") {
-            database.ref().update({
-                brownScore: newScore
-            })
-        }
-    }
+                losses++;
+            };
+        };
+        var newScore = wins + "-" + ties + "-" + losses;
+        roundEnder++;
+        database.ref(playerSelected).update({
+            score: newScore
+        });        
+    };
 
-    //chat function
+    //enables the new game button
+    $("#timer-display").on("click", function(){
+        if (roundEnder == 2 && playerSelected != "spectator") {
+            if (playAgain == "neither"){
+                playAgain = playerSelected;
+                database.ref().update({
+                    playAgain: playAgain
+                });
+                database.ref().push({
+                    color: playAgain,
+                    text: playAgain + " wants to play again!"                    
+                });
+            } else if (playAgain != playerSelected && playAgain == "pink" || playAgain != playerSelected && playAgain == "brown") {
+                database.ref().update({
+                    playAgain: "both"
+                });
+            };
+        };
+    });
+
+    //enables the chat button
     $("#chat-button").on("click", function(event){
         event.preventDefault();
         database.ref().push({
-            color: sessionStorage.playerSelected,
+            color: playerSelected,
             text: $("#text-message").val()
-        })
+        });
         $("#text-message").val("");
     })
 
+    //event listener to call the display function when it's pushed to the firebase data
     database.ref().on("child_added", function(snapshot){
         if (snapshot.val().text != "") {
             displayChatMessage(snapshot.val().color, snapshot.val().text);        
-        }
+        };
     });
 
+    //function to append the newest chat message
     function displayChatMessage(color, text){
-        var p = $("<p>")
+        var p = $("<p>");
         p.addClass(color+"-message");
-        if (color==sessionStorage.playerSelected){
-            p.addClass("same")
+        if (color==playerSelected){
+            p.addClass("same");
         } else {
-            p.addClass("different")
-        }
-        p.text(text)
+            p.addClass("different");
+        };
+        p.text(text);
         $("#chat-history").append(p);
     };
+
+    //play/pause music
+    $("#sound").on("click", function(){
+        if ($("#sound").attr("data-state")=="mute"){
+            $("#sound").attr("src", $("#sound").attr("data-volume"))
+            $("#game-music").get(0).volume = 0;
+            $("#sound").attr("data-state","volume")
+        }else {
+            $("#sound").attr("src", $("#sound").attr("data-mute"))
+            $("#game-music").get(0).volume = 0.2;
+            $("#sound").attr("data-state","mute")
+        }
+    })
+
+    
 });
