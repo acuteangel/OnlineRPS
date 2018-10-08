@@ -20,8 +20,8 @@ $(document).ready(function() {
     var ties = 0;
     var losses = 0;
     var roundEnder = 0;
-    var playAgain = "neither";
-    var squeakSound;
+    var playAgain = "neither";    
+    var pCount = 0;
 
     //resets all others back to the player selection screen if a player leaves
     $(window).on('beforeunload unload', function(){                
@@ -113,8 +113,15 @@ $(document).ready(function() {
     }
 
     $(".player-select").on("click", function(){
-        if ($(this).attr("data-selected") == "no"){
-            var color = $(this).attr("data-color");
+        var color = $(this).attr("data-color");
+        $("#"+color+"-gao").get(0).volume = 0.2;
+        $("#"+color+"-gao").get(0).play();
+        if ($("#music").get(0).volume != 0.2){
+            $("#music").get(0).volume = 0.2
+            $("#music").get(0).play();
+            $("#sound").attr("data-state","mute")
+        }
+        if (color != "no"){            
             selectPlayer(color);
             if (playerSelected != "spectator"){
                 deselectPlayer(playerSelected);                
@@ -136,8 +143,10 @@ $(document).ready(function() {
     });
     
     $(".kawaii-img").on("mouseup", function() {
-        $("#squeak-release").get(0).volume = 0.1;
-        $("#squeak-release").get(0).play();
+        setTimeout(function(){
+            $("#squeak-release").get(0).volume = 0.1;
+            $("#squeak-release").get(0).play();
+        }, 150);
         var selection = $(this).attr("data-type")
         if (playerSelected != "spectator" && timer > 0) {
             if (playerSelected == "pink"){
@@ -154,6 +163,8 @@ $(document).ready(function() {
 
     //function that starts a round and the timer
     function roundStart() {
+        $("#start").get(0).volume = 0.2
+        $("#start").get(0).play();
         $(".results").hide();
         $("#same-choice").attr("src","");
         $("#same-choice").show();
@@ -351,26 +362,31 @@ $(document).ready(function() {
 
     //function to append the newest chat message
     function displayChatMessage(color, text){
-        var p = $("<p>");
-        p.addClass(color+"-message");
-        if (color==playerSelected){
-            p.addClass("same");
-        } else {
-            p.addClass("different");
-        };
-        p.text(text);
-        $("#chat-history").append(p);
+        console.log(color)
+        if (color != undefined){
+            pCount++;
+            var p = $("<p>");
+            p.addClass(color+"-message");
+            if (color==playerSelected){
+                p.addClass("same");
+            } else {
+                p.addClass("different");
+            };
+            p.text(text);
+            $("#chat-history").append(p);
+            $("#chat-history").scrollTop(500*pCount);            
+            $("#notification").get(0).play();
+        }
     };
 
     //play/pause music
     $("#sound").on("click", function(){
         if ($("#sound").attr("data-state")=="mute"){
-            $("#sound").attr("src", $("#sound").attr("data-volume"))
-            $("#game-music").get(0).volume = 0;
+            $("#music").get(0).pause();
             $("#sound").attr("data-state","volume")
-        }else {
-            $("#sound").attr("src", $("#sound").attr("data-mute"))
-            $("#game-music").get(0).volume = 0.2;
+        } else {            
+            $("#music").get(0).volume = 0.2;
+            $("#music").get(0).play();
             $("#sound").attr("data-state","mute")
         }
     })

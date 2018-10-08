@@ -6,6 +6,14 @@ body {
     text-align: center;
 }
 
+#sound {
+    opacity: .5;
+    height: 10vw;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
 #wrapper, #loading {
     width: 80vw;
     height: 40vw;
