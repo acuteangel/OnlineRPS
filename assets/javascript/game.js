@@ -92,8 +92,6 @@ $(document).ready(function() {
                 playAgain = "neither";
                 database.ref().update({
                     playAgain: playAgain,
-                    brown: {selected: true},
-                    pink: {selected: true},
                 });
                 $("#info-display").text("Starting round...");                
                 roundStart();
