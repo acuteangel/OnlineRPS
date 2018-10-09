@@ -1,23 +1,11 @@
 # OnlineRPS
 
-https://acuteangel.github.io/OnlineRPS/
+## https://acuteangel.github.io/OnlineRPS/
 
-psuedocode: 
+### A simple Rock paper scissors game, with a kawaii theme. Uses Firebase to update global variables. Once two players have selected a character, the game starts. Anyone else on the page will be able to spectate and chat.  
 
-Scene 1: setup page
-    player select buttons, p1 and p2
-    if a player presses a button, assign them that role and set a boolean to disable the button
-    if both players are active, move to game scene and return booleans
+### While a round is in progress, players can press any of the rock, paper, or scissors icons to make a selection. If no selection is made when time runs out, a selection is chosen at random for the player. Once the results are displayed, both players have the option to begin a new round. If a player leaves at any time, anyone viewing the page will receive an alert and be returned to the player select screen. A player who stays through this and plays a new game will keep their score and chat history. 
 
-Scene 2: gameplay
-    set timer and wait for input
-    compare input
-    change score
+## I hope you enjoy! 
 
-extra:
-    stickers or chat function?
-
-things to figure out:
-    how to tell if user leaves the page?
-    make sure both players see the correct thing
-    prevent anyone who joins after the game starts from interfering, but allow spectating
+![](assets/images/pink-win.webp) ![](assets/images/brown-win.webp)
