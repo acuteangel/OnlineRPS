@@ -1,5 +1,7 @@
 # OnlineRPS
 
+### Please note: if testing app by yourself, you will need to open two instances of it.
+
 ## https://acuteangel.github.io/OnlineRPS/
 
 ### A simple Rock paper scissors game, with a kawaii theme. Uses Firebase to update global variables. Once two players have selected a character, the game starts. Anyone else on the page will be able to spectate and chat.  
